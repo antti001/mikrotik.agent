@@ -1,0 +1,10 @@
+<xml>
+<commands>
+    <item id="leases" type="counter" command="/ip/dhcp-server/lease/print">
+        <add key="count-only" value=""/>
+    </item>
+    <item id="connections" type="counter" command="/ip/firewall/connection/print">
+        <add key="count-only" value=""/>
+     </item>
+     </commands>
+</xml>

@@ -1,0 +1,4 @@
+wiki.mikrotik.com/wiki/API_PHP_class
+
+
+apt-get install -y php php-xml php-curl
