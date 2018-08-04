@@ -18,7 +18,7 @@ $devices=loadDevices("devices.xml");
 
 foreach($devices as $devIP=>$device)
 {
-    $influxData="counter,client=".$CONF["ClientName"];
+    $influxData="counters,client=".$CONF["ClientName"];
 
     $cmdResults=[];
     if($API->connect($device->IP,$device->User,$device->Secret)){
