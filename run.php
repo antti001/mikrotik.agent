@@ -1,5 +1,5 @@
 <?php
-require_once("configuration.php");
+require_once("config.php");
 require('routeros_api.php');
 require_once('app/CommandClass.php');
 require_once('app/DeviceClass.php');
