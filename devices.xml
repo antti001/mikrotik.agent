@@ -1,0 +1,5 @@
+<xml>
+    <devices>
+        <item group="dhcpd" ip="10.0.1.1" user="agent1" secret="t4rKl_v2=mt"/>
+    </devices>
+</xml>

@@ -1,4 +1,9 @@
 <xml>
+<groups>
+    <item id="default" commands="leases"/>
+    <item id="dhcpd" commands="leases"/>
+</groups>
+
 <commands>
     <item id="leases" type="counter" command="/ip/dhcp-server/lease/print">
         <add key="count-only" value=""/>
@@ -6,5 +11,5 @@
     <item id="connections" type="counter" command="/ip/firewall/connection/print">
         <add key="count-only" value=""/>
      </item>
-     </commands>
+</commands>
 </xml>

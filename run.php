@@ -1,56 +1,65 @@
 <?php
 require_once("configuration.php");
 require('routeros_api.php');
-require('helpers.php');
+require_once('app/CommandClass.php');
+require_once('app/DeviceClass.php');
+require('app/helpers.php');
+require('app/DeviceWorker.php');
 
 $API = new RouterosAPI();
 $API->debug = false;
 
 $deviceID="";
 $influxData="";
-$xml=simplexml_load_file("commands.xml") or die ("Xml file not found");
-
-$results = array();
-
-if($API->connect('10.0.1.1','username','password')){
-
-    $deviceID=getApiSingleValue($API,"/system/identity/getall","name");
-    print("DevciceID = $deviceID".PHP_EOL);
 
 
-    $influxData="counter,client=".$CONF["ClientName"].",host=$deviceID ";
-    $arResults=array();
-    // foreach($xml->xpath('group[@id="dhcpd"]/item') as $item)
-    foreach($xml->xpath('commands/item') as $item)
-    {
-        $itemID=$item["id"];
-        $itemType=$item["type"];
-        $cmdText=$item["command"];
-        
-//        $itemText = str_replace(array("\n","\r"), '', $itemText);
- //       $itemText = trim($itemText);
+$commands=loadCommands("commands.xml");
+$devices=loadDevices("devices.xml");
 
-        $cmdArguments=array();
-        foreach($item->add as $elem)
-        {
-            $key = $elem["key"];
-            $val = $elem["value"];
-            $cmdArguments["$key"] = $val;
-        }    
-        $result = getApiValue($API,$cmdText,$cmdArguments);
-//        print("Name=$itemID Value=$result".PHP_EOL);        
-        $arResults[]="$itemID=$result";
+foreach($devices as $devIP=>$device)
+{
+    $influxData="counter,client=".$CONF["ClientName"];
+
+    $cmdResults=[];
+    if($API->connect($device->IP,$device->User,$device->Secret)){
+        $deviceID=getApiSingleValue($API,"/system/identity/getall","name");
+        $influxData.=",host=$deviceID ";
+        print("IP=$devIP DevciceID=$deviceID".PHP_EOL);
+
+        $cmdResults=executeCommands($API,$commands);
+
+        $API->disconnect();
     }
-    $influxData .=implode($arResults,",");
+
+    $influxData .=implode($cmdResults,",");
     print($influxData.PHP_EOL);
+    sendToServer($influxData,$CONF);
 }
 
-$influxdbUrl = $CONF["InfluxDB"]["Url"]."/write?db=".$CONF["InfluxDB"]["Database"];
-print("$influxdbUrl".PHP_EOL);
 
-$postResult=httpPost($influxdbUrl,$influxData);
+function sendToServer($influxData,$CONF)
+{
+    $influxdbUrl = $CONF["InfluxDB"]["Url"]."/write?db=".$CONF["InfluxDB"]["Database"];
+    print("$influxdbUrl".PHP_EOL);
+    
+    $postResult=httpPost($influxdbUrl,$influxData);
+    
+    print("Post result:$postResult");
+}
 
-print("Post result:$postResult");
+
+function executeCommands($api,$commands)
+{
+    $results=[];
+    foreach($commands as $cmdID =>$cmd)
+    {
+        $result = getApiValue($api,$cmd->CommandText,$cmd->Arguments);
+        print("Name=$cmdID Value=$result".PHP_EOL);        
+        $results[]="$cmdID=$result";
+    }
+
+    return $results;
+}
 
 ?>
 
