@@ -13,8 +13,8 @@ $deviceID="";
 $influxData="";
 
 
-$commands=loadCommands("commands.xml");
-$devices=loadDevices("devices.xml");
+$commands=loadCommands(__DIR__.DIRECTORY_SEPARATOR."commands.xml");
+$devices=loadDevices(__DIR__.DIRECTORY_SEPARATOR."devices.xml");
 
 foreach($devices as $devIP=>$device)
 {
