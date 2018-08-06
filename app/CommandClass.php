@@ -5,6 +5,9 @@ class CommandClass{
     public $Type="";
     public $CommandText="";
     public $Parameters=[];
+
+    public $ResultTagName=""; //if API retuns mutlidimensional array (ethernet stats). Then one lement from array mus go for tag as identifier. Mostly ethernet name
+    public $ResultsKeys=[]; // from API result array, what elelemnts we send to influx
 }
 
 function loadCommands($xmlFile)
@@ -20,12 +23,19 @@ function loadCommands($xmlFile)
         $cmd->Type=$item["type"];
         $cmd->CommandText=$item["command"];
 
-        foreach($item->add as $elem)
+        foreach($item->parameter as $elem)
         {
             $key = $elem["key"];
             $val = $elem["value"];
-            $cmd->Arguments["$key"] = $val;
+            $cmd->Parameters["$key"] = $val;
         }    
+        if($item->result != NULL)
+        {
+            print("\tFOUND Command->result".PHP_EOL);
+            $cmd->ResultTagName=$item->result["tag"];
+            $cmd->ResultKeys=explode(",",$item->result["keys"]);   
+        }
+
         $results["".$cmd->ID.""]=$cmd;
     }
     print(" ".count($results).PHP_EOL);

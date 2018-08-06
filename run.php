@@ -18,22 +18,30 @@ $devices=loadDevices(__DIR__.DIRECTORY_SEPARATOR."devices.xml");
 
 foreach($devices as $devIP=>$device)
 {
-    $influxData="counters,client=".$CONF["ClientName"];
+    $influxData="client=".$CONF["ClientName"];
 
     $cmdResults=[];
     if($API->connect($device->IP,$device->User,$device->Secret)){
         $deviceID=getApiSingleValue($API,"/system/identity/getall","name");
-        $influxData.=",host=$deviceID ";
+        $influxData.=",host=$deviceID";
         print("IP=$devIP DevciceID=$deviceID".PHP_EOL);
 
-        $cmdResults=executeCommands($API,$commands);
+        $cmdResults=executeCommands($API,$influxData,$commands);
 
         $API->disconnect();
     }
 
     $influxData .=implode($cmdResults,",");
-    print($influxData.PHP_EOL);
-    sendToServer($influxData,$CONF);
+    foreach($cmdResults as $cmdResult)
+    {
+       
+        print("RESULT LINE : $cmdResult".PHP_EOL);
+        //teha nii, et saadetaks ühe POST käsuga
+        sendToServer($cmdResult,$CONF);
+
+    }
+//    print($influxData.PHP_EOL);
+  //  sendToServer($influxData,$CONF);
 }
 
 
@@ -48,17 +56,47 @@ function sendToServer($influxData,$CONF)
 }
 
 
-function executeCommands($api,$commands)
+function executeCommands($api,$prefix,$commands)
 {
     $results=[];
+    $singeValues=[];
     foreach($commands as $cmdID =>$cmd)
     {
-        $result = getApiValue($api,$cmd->CommandText,$cmd->Arguments);
-        print("Name=$cmdID Value=$result".PHP_EOL);        
-        $results[]="$cmdID=$result";
-    }
+        $result = getApiValue($api,$cmd->CommandText,$cmd->Parameters);
+        if(is_array($result))
+        {
+            foreach($result as $subResultID =>$subResult)
+            {
+               if(is_array($subResult))
+               {
+                 $sIDTag=$cmd->ResultTagName."=".$subResult["$cmd->ResultTagName"];
+                 $sDataValuePart = parseResultArray($subResult,$cmd->ResultKeys);
+                 $results[] = $cmdID.",".$prefix.",$sIDTag ".$sDataValuePart;
+               }
 
+            }
+        }else{
+            $results[] = $cmdID.",".$prefix." value=$result";
+        }
+    }
     return $results;
+}
+
+
+function parseResultArray($ar,$arResultKeys)
+{
+    $sResult="";
+    $arValuePairs=[];
+    foreach($ar as $key =>$value)
+    {
+
+        if(in_array($key,$arResultKeys))
+        {
+         //   print("\t\tprocessResult.  $key=$value");        
+            $arValuePairs[]="$key=$value";
+        }
+    }
+    return implode(",",$arValuePairs);
 }
 
 ?>

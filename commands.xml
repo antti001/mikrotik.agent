@@ -1,15 +1,32 @@
 <xml>
 <groups>
-    <item id="default" commands="leases"/>
+    <item id="default" commands="connections"/>
     <item id="dhcpd" commands="leases"/>
+    <item id="capsmgr" commands=""/>
 </groups>
 
 <commands>
-    <item id="leases" type="counter" command="/ip/dhcp-server/lease/print">
-        <add key="count-only" value=""/>
+    <item id="leases" type="counters" command="/ip/dhcp-server/lease/print">
+        <parameter key="count-only" value=""/>
     </item>
-    <item id="connections" type="counter" command="/ip/firewall/connection/print">
-        <add key="count-only" value=""/>
+
+    <item id="connections" type="counters" command="/ip/firewall/connection/print">
+        <parameter key="count-only" value=""/>
      </item>
+
+    <item id="ethernet-stats" interval="2" type="statistics"  command="/interface/ethernet/print">
+        <parameter key="stats" value=""/>
+        <result tag="name" keys="tx-bytes,rx-bytes"/> 
+    </item>
+
+<!--
+     <item id="traffic-ether" disabled="true" command="/interface/monitor-traffic" >
+             <parameter key="interface" value="[$WAN_INTERFACE]"/>
+             <parameter key="as-value" value=""/>
+             <parameter key="once" value=""/>
+
+     </item>
+-->
+     
 </commands>
 </xml>
