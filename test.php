@@ -29,15 +29,24 @@ if($API->connect($TEST["host"],$TEST["user"],$TEST["secret"]))
 print("Execute");
 //$ar = $API->comm('/interface/ethernet/monitor',array("numbers"=>"0,1,2,3","once"=>""));
 
-$ar = $API->comm('/interface/ethernet/print',array("stats"=>""));
+//$ar = $API->comm('/interface/ethernet/print',array("stats"=>""));
+//shows one array
+//$ar = $API->comm('/interface/monitor-traffic',array("once"=>""));
 
- 
-//$ar = $API->comm('/interface/ethernet/getall',array());
- 
+
+
+//$ar = $API->comm('/interface/monitor-traffic',array("[f]"=>"","once"=>""));
+$API->write('/interface/monitor-traffic',false);
+$API->write('[find type=ether]');
+//$API->write('=[find type=ether]=',false);
+ $API->write('=once=');
+ $READ = $API->read(false);
+ $ar = $API->parseResponse($READ);
 
 //$ar = $API->comm('/interface/monitor-traffic/[find type=ether]',array("once"=>""));
- print_r($ar);
-
+// print_r($ar);
+$ar = $API->comm('/interface/monitor-traffic',array("once"=>""));
+print_r($ar);
 
 
  return;

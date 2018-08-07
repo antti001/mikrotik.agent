@@ -19,14 +19,11 @@
         <result tag="name" keys="tx-bytes,rx-bytes"/> 
     </item>
 
-<!--
-     <item id="traffic-ether" disabled="true" command="/interface/monitor-traffic" >
-             <parameter key="interface" value="[$WAN_INTERFACE]"/>
-             <parameter key="as-value" value=""/>
-             <parameter key="once" value=""/>
 
+     <item id="traffic"  command="/interface/monitor-traffic" >
+        <parameter key="once" value=""/>
+        <result tag="name" keys="rx-bits-per-second,tx-bits-per-second"/> 
      </item>
--->
      
 </commands>
 </xml>
