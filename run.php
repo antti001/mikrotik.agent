@@ -52,7 +52,7 @@ function sendToServer($influxData,$CONF)
     
     $postResult=httpPost($influxdbUrl,$influxData);
     
-    print("Post result:$postResult");
+    print("Post result:$postResult".PHP_EOL);
 }
 
 
@@ -69,9 +69,13 @@ function executeCommands($api,$prefix,$commands)
             {
                if(is_array($subResult))
                {
-                 $sIDTag=$cmd->ResultTagName."=".$subResult["$cmd->ResultTagName"];
-                 $sDataValuePart = parseResultArray($subResult,$cmd->ResultKeys);
-                 $results[] = $cmdID.",".$prefix.",$sIDTag ".$sDataValuePart;
+                    $line =$cmdID.",".$prefix;
+                    if($cmd->ResultTagName!="")
+                    {
+                        $line .=",".$cmd->ResultTagName."=".$subResult["$cmd->ResultTagName"];
+                    }
+                    $line.=" ".parseResultArray($subResult,$cmd->ResultKeys);
+                 $results[] = $line;
                }
 
             }

@@ -22,7 +22,7 @@
 
      <item id="traffic"  command="/interface/monitor-traffic" >
         <parameter key="once" value=""/>
-        <result tag="name" keys="rx-bits-per-second,tx-bits-per-second"/> 
+        <result tag="" keys="rx-bits-per-second,tx-bits-per-second"/> 
      </item>
      
 </commands>
